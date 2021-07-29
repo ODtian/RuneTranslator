@@ -1,23 +1,17 @@
 import asyncio
 import json
-
 import uuid
 from importlib import import_module
 
-# import webview
-
 from .ocr import OCR
-from .utils import async_ts, ts, get_window, get_window_title, snapshot, parse_config
+from .utils import async_ts, get_window, get_window_title, parse_config, snapshot, ts
 
-CONF_PATH = "./config.json"
+# import webview
 
 
 class AsyncApi:
     loop = asyncio.new_event_loop()
     async_result = {}
-
-    def __init__(self):
-        self.window = None
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
@@ -54,7 +48,9 @@ class AsyncApi:
 
 
 class Api(AsyncApi):
-    def __init__(self):
+    def __init__(self, config_path=None):
+        self.config_path = config_path
+
         self.config = None
         self.ocr = None
 
@@ -102,8 +98,9 @@ class Api(AsyncApi):
 
     @ts
     def set_language(self, source_lang=None, dest_lang=None):
-        self.source_lang = source_lang or self.source_lang
-        self.dest_lang = dest_lang or self.dest_lang
+        lang_map = self.config["api"][self.api.class_name].get("lang_map", {})
+        self.source_lang = lang_map.get(source_lang, source_lang) or self.source_lang
+        self.dest_lang = lang_map.get(dest_lang, dest_lang) or self.dest_lang
 
     @async_ts
     async def _update(self, lazy):
@@ -144,7 +141,8 @@ class Api(AsyncApi):
                     "fontStrokeColor",
                     "fontStrokeWidth",
                 ),
-            )
+            ),
+            **parse_config(self.config, keys=("bgColor", "bgRectColor")),
         )
 
     def update(self, lazy=True, compose=True):
@@ -164,7 +162,7 @@ class Api(AsyncApi):
     #     self.window.destroy()
 
     def update_config(self):
-        with open(CONF_PATH, "rb") as f:
+        with open(self.config_path, "rb") as f:
             self.config = json.loads(f.read())
 
     def get_config(self):

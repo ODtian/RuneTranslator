@@ -5,6 +5,7 @@ from lxml import etree
 
 
 class Bing:
+    class_name = "bing"
     api_url = "https://cn.bing.com/ttranslatev3"
     host_url = "https://cn.bing.com/translator"
 
@@ -34,7 +35,7 @@ class Bing:
         )
         self.tk = {"key": result[0], "token": result[1].strip('"')}
 
-    async def translate(self, from_lan, to_lan, *text):
+    async def translate(self, from_lang, to_lang, *text):
         params = {
             "isVertical": "1",
             "IG": self.ig,
@@ -43,8 +44,8 @@ class Bing:
         }
 
         data = {
-            "fromLang": from_lan,
-            "to": to_lan,
+            "fromLang": from_lang,
+            "to": to_lang,
             "text": "\n".join(text),
             **self.tk,
         }
@@ -62,7 +63,7 @@ class Bing:
             data = r.json()
             if isinstance(data, dict) and data.get("statusCode") == 400:
                 self.update_host_info()
-                return await self.translate(from_lan, to_lan, *text)
+                return await self.translate(from_lang, to_lang, *text)
             else:
                 return data[0]["translations"][0]["text"].split("\n")
 

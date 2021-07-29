@@ -5,6 +5,7 @@ import httpx
 
 
 class Baidu:
+    class_name = "baidu"
     api_url = "https://api.fanyi.baidu.com/api/trans/vip/translate"
 
     def __init__(self, app_id, secret_key):
@@ -13,14 +14,14 @@ class Baidu:
 
     async def translate(self, from_lang, to_lang, *text):
         salt = str(random.randint(32768, 65536))
-        text_joined = "\n".join(text)
+        query_text = "\n".join(text)
         sign = hashlib.md5(
-            (self.app_id + text_joined + salt + self.secret_key).encode()
+            (self.app_id + query_text + salt + self.secret_key).encode()
         ).hexdigest()
 
         params = {
             "appid": self.app_id,
-            "q": text_joined,
+            "q": query_text,
             "from": from_lang,
             "to": to_lang,
             "salt": salt,

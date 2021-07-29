@@ -38,38 +38,116 @@ python main.py
 
 ```javascript
 {
+    "tempPath": "./temp.bmp",
+    "maxSize": 2000,
+    "font": {
+        "fontPath": "填写你的字体文件",
+        "fontColor": "#ffffff",
+        "fontSize": null,
+        "fontStrokeWidth": 2,
+        "fontStrokeColor": "#000000"
+    },
+    "bgColor": null,
+    "bgRectColor": "#ff0000",
+    "setWindowWaitingTime": 1,
+    "updateInterval": 1,
+    "api": {
+        "baidu": {
+            "name": "百度翻译",
+            "kwargs": {
+                "app_id": "填写你的参数",
+                "secret_key": "填写你的参数"
+            }
+        },
+        "bing": {
+            "name": "必应翻译"
+        },
+        "youdao": {
+            "name": "有道翻译"
+        },
+        "direct": {
+            "name": "不翻译"
+        }
+    },
+    "lang": [
+        {
+            "name": "简体中文",
+            "value": "zh"
+        },
+        {
+            "name": "英文",
+            "value": "en"
+        },
+        {
+            "name": "日文",
+            "value": "jp"
+        }
+    ],
+    "ocrLang": [
+        {
+            "name": "中文",
+            "value": "zh-Hans-CN"
+        },
+        {
+            "name": "英语",
+            "value": "en"
+        },
+        {
+            "name": "日语",
+            "value": "ja"
+        }
+    ]
+}
+{
     "tempPath": "截图临时文件存储位置",
     "maxSize": 5000, // 截图缩放大小，更高的尺寸可以提高准确率
     "font": {
         "fontPath": "填写你的字体文件",
         "fontColor": "#ffffff", // 渲染文本颜色
-        "fontSize": 16, // 渲染文本大小
+        "fontSize": null, // 渲染文本大小，为空则自动判断大小
         "fontStrokeWidth": 2, // 渲染文本描边大小
         "fontStrokeColor": "#000000" // 渲染文本描边颜色
     },
     "bgColor": null, // 渲染文本背景颜色，为空则为原背景模糊
-    "setWindowWaitingTime": 1, // 渲染文本
-    "updateInterval": 1, // 渲染文本
+    "bgRectColor": "#ff0000", // OCR识别边框的颜色，没有则不上色
+    "setWindowWaitingTime": 1, // 设置顶置窗口等待的时间
+    "updateInterval": 1, // 自动刷新间隔
     "api": {
         "baidu": { // 翻译API的模块名，也是类名
             "name": "百度翻译",
-            "lang": [
-                {
-                    "name": "简体中文",
-                    "value": "zh" // 翻译语言代码
-                }
-            ],
             "kwargs": { // 实例化API的参数，没有可以不写
                 "app_id": "填写你的参数",
                 "secret_key": "填写你的参数"
             }
         },
         "bing": {
-        // ...
+            "name": "必应翻译",
+            "lang_map": { //  API的语言代码别名，没有别名则无需填
+                "zh": "zh-Hans",
+                "jp": "ja"
+            }
         },
         "youdao": {
         // ...
+        },
+        "direct": {
+        // ...
+        }
     },
+    "lang": [ // 语言
+        {
+            "name": "简体中文",
+            "value": "zh" // 语言代码
+        },
+        {
+            "name": "英文",
+            "value": "en"
+        },
+        {
+            "name": "日文",
+            "value": "jp"
+        }
+    ],
     "ocrLang": [
         {
             "name": "中文",

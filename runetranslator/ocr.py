@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -26,6 +27,7 @@ class Line:
 
 class OCR:
     ocr_path = f"{os.path.dirname(__file__)}/script/ocr_from_path.ps1"
+    need_trim_lang = ("ja", "zh-Hans")
 
     def __init__(
         self,
@@ -52,7 +54,10 @@ class OCR:
 
     @property
     def line_text(self):
-        return [line.text for line in self.lines]
+        if self.ocr_lang in self.need_trim_lang:
+            return [re.sub(r"\s", "", line.text) for line in self.lines]
+        else:
+            return [line.text for line in self.lines]
 
     @async_ts
     async def recognize(
@@ -79,12 +84,13 @@ class OCR:
     @ts
     def compose(
         self,
-        font_size=16,
+        font_size=None,
         font_path="黑体",
         font_color=(0, 0, 0),
         font_stroke_width=1,
         font_stroke_color=(255, 255, 255),
         bg_color=None,
+        bg_rect_color=None,
     ):
         if not self.im:
             return ""
@@ -93,13 +99,21 @@ class OCR:
         draw = ImageDraw.Draw(im)
 
         for line in self.lines:
-            font = ImageFont.truetype(font_path, font_size)
+            font = ImageFont.truetype(font_path, font_size or line.size[1])
 
             if not bg_color:
-                upper_im = im.crop(line.box).filter(ImageFilter.BoxBlur(10))
+                upper_im = im.crop(line.box).filter(ImageFilter.BoxBlur(20))
                 im.paste(upper_im, line.box)
             else:
                 draw.rectangle(line.box, fill=bg_color, outline=bg_color)
+
+            if bg_rect_color:
+                draw.rectangle(
+                    line.box,
+                    fill=None,
+                    outline=bg_rect_color,
+                    width=font_stroke_width,
+                )
 
             text_im = create_text_im(
                 line.ts,

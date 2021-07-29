@@ -6,14 +6,14 @@ import hashlib
 
 
 class Youdao:
-    host_url = "https://fanyi.youdao.com"
+    class_name = "youdao"
     api_url = "https://fanyi.youdao.com/translate_o?smartresult=dict&smartresult=rule"
+    host_url = "https://fanyi.youdao.com"
     headers = {
         "Origin": host_url,
         "Referer": host_url,
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36",
     }
-
     sign_re = re.compile(r'n.md5\("fanyideskweb"\+e\+i\+"(.*?)"\)')
     get_sign_re = re.compile(
         "https://shared.ydstatic.com/fanyi/newweb/(.*?)/scripts/newweb/fanyi.min.js"
@@ -55,20 +55,25 @@ class Youdao:
             "action": "FY_BY_DEFAULT",
         }
 
-    async def translate(self, from_language, to_language, *text):
+    async def translate(self, from_lang, to_lang, *text):
         query_text = "\n".join(text)
 
         async with httpx.AsyncClient(headers=self.headers) as client:
 
             sign_key = await self.get_sign_key(client)
 
-            data = self.get_form(query_text, from_language, to_language, sign_key)
+            data = self.get_form(
+                query_text,
+                from_lang,
+                to_lang,
+                sign_key,
+            )
             r = await client.post(self.api_url, data=data)
             result = r.json()
 
             if result["errorCode"] != 0:
                 self.get_new_sign_url = None
-                return await self.translate(from_language, to_language, *text)
+                return await self.translate(from_lang, to_lang, *text)
             else:
                 self.query_count += 1
                 return ["".join(s["tgt"] for s in r) for r in result["translateResult"]]

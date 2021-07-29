@@ -204,11 +204,11 @@
                     el: "#app",
                     created() {
                         this.apiSetting = Object.keys(this.config.api)[0];
+                        this.initLanguageSetting();
                     },
                     data() {
                         return {
                             config,
-
                             drawer: true,
                             autoUpdate: false,
                             autoUpdateTimer: null,
@@ -249,7 +249,7 @@
                         },
                         apiSetting() {
                             this.$py.set_api(this.apiSetting);
-                            this.initLanguageSetting();
+                            // this.initLanguageSetting();
                         },
                         languageSetting: {
                             async handler(val) {
@@ -264,8 +264,8 @@
                         initLanguageSetting() {
                             this.languageSetting = {
                                 ocr: this.config.ocrLang[0].value,
-                                source: this.selectedApi.lang[0].value,
-                                dest: this.selectedApi.lang[1].value,
+                                source: this.config.lang[0].value,
+                                dest: this.config.lang[1].value,
                             };
                         },
                         async setWindow() {
@@ -317,7 +317,6 @@
                             }
                         },
                         onCardWheel(e) {
-                            console.log(e.deltaY);
                             this.card.ratio -= e.deltaY / 1000;
                         },
                         recoverCard() {
@@ -329,6 +328,7 @@
                         },
                         updateConfig() {
                             this.$py.update_config();
+                            this.initLanguageSetting();
                         },
                     },
                     computed: {
@@ -337,22 +337,19 @@
                                 return { value, name: api.name };
                             });
                         },
-                        selectedApi() {
-                            return this.config.api[this.apiSetting];
-                        },
                         selectComponents() {
                             return [
                                 {
                                     label: "源语言",
                                     hint: "选择翻译的源语言",
                                     modelKey: "source",
-                                    items: this.selectedApi.lang,
+                                    items: this.config.lang,
                                 },
                                 {
                                     label: "翻译语言",
                                     hint: "选择翻译的目的语言",
                                     modelKey: "dest",
-                                    items: this.selectedApi.lang,
+                                    items: this.config.lang,
                                 },
                                 {
                                     label: "OCR语言",
