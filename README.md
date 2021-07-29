@@ -1,6 +1,6 @@
 # RuneTranslator
 
-![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/asset/.gif)
+![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/asset/老婆🐟.gif)
 
 ![](https://img.shields.io/github/stars/ODtian/RuneTranslator.svg)
 ![](https://img.shields.io/github/forks/ODtian/RuneTranslator.svg)
@@ -13,6 +13,8 @@
 -   支持渲染文本到原来的位置，不丢失位置信息；
 -   简单的架构，欢迎 PR;
 -   ...
+
+![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/asset/flow.svg)
 
 ## 使用方法
 
@@ -82,4 +84,4 @@ python main.py
 
 ### End
 
-![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/icon/0.webp)
+![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/asset/娇羞🐟.webp)
