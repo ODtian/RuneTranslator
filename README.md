@@ -34,7 +34,7 @@ python main.py
 
 ## 配置
 
-```json
+```javascript
 {
     "tempPath": "截图临时文件存储位置",
     "maxSize": 5000, // 截图缩放大小，更高的尺寸可以提高准确率
