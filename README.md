@@ -60,10 +60,18 @@ python main.py
             }
         },
         "bing": {
-            "name": "必应翻译"
+            "name": "必应翻译",
+            "lang_map": {
+                "zh": "zh-Hans",
+                "jp": "ja"
+            }
         },
         "youdao": {
-            "name": "有道翻译"
+            "name": "有道翻译",
+            "lang_map": {
+                "zh": "zh-CHS",
+                "jp": "ja"
+            }
         },
         "direct": {
             "name": "不翻译"
