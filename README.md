@@ -1,6 +1,6 @@
 # RuneTranslator
 
-![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/icon/1.gif)
+![](https://raw.githubusercontent.com/ODtian/RuneTranslator/master/asset/.gif)
 
 ![](https://img.shields.io/github/stars/ODtian/RuneTranslator.svg)
 ![](https://img.shields.io/github/forks/ODtian/RuneTranslator.svg)
