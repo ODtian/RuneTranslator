@@ -1,0 +1,4 @@
+git+https://github.com/r0x0r/pywebview
+httpx
+lxml
+pillow
