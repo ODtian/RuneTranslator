@@ -38,7 +38,7 @@ python main.py
 
 ```javascript
 {
-    "tempPath": "./temp.bmp",
+    "tempPath": "./temp.jpg",
     "maxSize": 2000,
     "font": {
         "fontPath": "填写你的字体文件",
