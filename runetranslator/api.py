@@ -98,7 +98,7 @@ class Api(AsyncApi):
 
     @ts
     def set_language(self, source_lang=None, dest_lang=None):
-        lang_map = self.config["api"][self.api.class_name].get("lang_map", {})
+        lang_map = self.config["api"][self.api.class_name].get("langMap", {})
         self.source_lang = lang_map.get(source_lang, source_lang) or self.source_lang
         self.dest_lang = lang_map.get(dest_lang, dest_lang) or self.dest_lang
 

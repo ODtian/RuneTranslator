@@ -22,14 +22,14 @@
         },
         "bing": {
             "name": "必应翻译",
-            "lang_map": {
+            "langMap": {
                 "zh": "zh-Hans",
                 "jp": "ja"
             }
         },
         "youdao": {
             "name": "有道翻译",
-            "lang_map": {
+            "langMap": {
                 "zh": "zh-CHS",
                 "jp": "ja"
             }

@@ -61,14 +61,14 @@ python main.py
         },
         "bing": {
             "name": "必应翻译",
-            "lang_map": {
+            "langMap": { // 语言代码别名，没有别名可以不设置
                 "zh": "zh-Hans",
                 "jp": "ja"
             }
         },
         "youdao": {
             "name": "有道翻译",
-            "lang_map": {
+            "langMap": {
                 "zh": "zh-CHS",
                 "jp": "ja"
             }
