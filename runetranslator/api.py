@@ -91,7 +91,7 @@ class Api(AsyncApi):
 
     @ts
     def set_api(self, api_class):
-        module = import_module(f"ocr.translate.{api_class.lower()}")
+        module = import_module(f"runetranslator.translate.{api_class.lower()}")
         cls = getattr(module, api_class.capitalize())
         kwargs = self.config["api"][api_class].get("kwargs", {})
         self.api = cls(**kwargs)
