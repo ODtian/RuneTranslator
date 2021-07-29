@@ -1,0 +1,85 @@
+{
+    "tempPath": "./temp.bmp",
+    "maxSize": 5000,
+    "font": {
+        "fontPath": "填写你的字体文件",
+        "fontColor": "#ffffff",
+        "fontSize": 16,
+        "fontStrokeWidth": 2,
+        "fontStrokeColor": "#000000"
+    },
+    "bgColor": null,
+    "setWindowWaitingTime": 1,
+    "updateInterval": 1,
+    "api": {
+        "baidu": {
+            "name": "百度翻译",
+            "lang": [
+                {
+                    "name": "简体中文",
+                    "value": "zh"
+                },
+                {
+                    "name": "英文",
+                    "value": "en"
+                },
+                {
+                    "name": "日文",
+                    "value": "jp"
+                }
+            ],
+            "kwargs": {
+                "app_id": "填写你的参数",
+                "secret_key": "填写你的参数"
+            }
+        },
+        "bing": {
+            "name": "必应翻译",
+            "lang": [
+                {
+                    "name": "简体中文",
+                    "value": "zh-Hans"
+                },
+                {
+                    "name": "英文",
+                    "value": "en"
+                },
+                {
+                    "name": "日文",
+                    "value": "ja"
+                }
+            ]
+        },
+        "youdao": {
+            "name": "有道翻译",
+            "lang": [
+                {
+                    "name": "简体中文",
+                    "value": "zh-CHS"
+                },
+                {
+                    "name": "英文",
+                    "value": "en"
+                },
+                {
+                    "name": "日文",
+                    "value": "ja"
+                }
+            ]
+        }
+    },
+    "ocrLang": [
+        {
+            "name": "中文",
+            "value": "zh-Hans-CN"
+        },
+        {
+            "name": "英语",
+            "value": "en"
+        },
+        {
+            "name": "日语",
+            "value": "ja"
+        }
+    ]
+}
