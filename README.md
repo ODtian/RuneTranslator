@@ -43,7 +43,7 @@ python main.py
         "fontColor": "#ffffff", // 渲染文本颜色
         "fontSize": 16, // 渲染文本大小
         "fontStrokeWidth": 2, // 渲染文本描边大小
-        "fontStrokeColor": "#000000" // 渲染文本颜色
+        "fontStrokeColor": "#000000" // 渲染文本描边颜色
     },
     "bgColor": null, // 渲染文本背景颜色，为空则为原背景模糊
     "setWindowWaitingTime": 1, // 渲染文本
