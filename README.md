@@ -72,8 +72,8 @@ python main.py
         {
             "name": "中文",
             "value": "zh-Hans-CN"
-            // OCR引擎的语言代码，
-            // 可以运行RuneTranslator/runetranslator/script/check_languages.ps1查看支持的语言，
+            // OCR引擎的语言代码
+            // 可以运行RuneTranslator/runetranslator/script/check_languages.ps1查看支持的语言
             // 也可以在Windows设置里添加系统语言
         }
     ]
