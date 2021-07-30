@@ -32,6 +32,17 @@ pip install -r requirements.txt
 python main.py
 ```
 
+### 参数
+
+```
+usage: main.py [-h] [-C CONF] [-D]
+
+可选参数:
+  -h, --help            show this help message and exit
+  -C CONF, --conf CONF  配置文件路径.
+  -D, --debug           Debug模式.
+```
+
 注：使用百度翻译 api 前先去填 key 和 secret
 
 ## 配置
