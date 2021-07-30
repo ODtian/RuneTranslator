@@ -38,77 +38,8 @@ python main.py
 
 ```javascript
 {
-    "tempPath": "./temp.jpg",
-    "maxSize": 2000,
-    "font": {
-        "fontPath": "填写你的字体文件",
-        "fontColor": "#ffffff",
-        "fontSize": null,
-        "fontStrokeWidth": 2,
-        "fontStrokeColor": "#000000"
-    },
-    "bgColor": null,
-    "bgRectColor": "#ff0000",
-    "setWindowWaitingTime": 1,
-    "updateInterval": 1,
-    "api": {
-        "baidu": {
-            "name": "百度翻译",
-            "kwargs": {
-                "app_id": "填写你的参数",
-                "secret_key": "填写你的参数"
-            }
-        },
-        "bing": {
-            "name": "必应翻译",
-            "langMap": { // 语言代码别名，没有别名可以不设置
-                "zh": "zh-Hans",
-                "jp": "ja"
-            }
-        },
-        "youdao": {
-            "name": "有道翻译",
-            "langMap": {
-                "zh": "zh-CHS",
-                "jp": "ja"
-            }
-        },
-        "direct": {
-            "name": "不翻译"
-        }
-    },
-    "lang": [
-        {
-            "name": "简体中文",
-            "value": "zh"
-        },
-        {
-            "name": "英文",
-            "value": "en"
-        },
-        {
-            "name": "日文",
-            "value": "jp"
-        }
-    ],
-    "ocrLang": [
-        {
-            "name": "中文",
-            "value": "zh-Hans-CN"
-        },
-        {
-            "name": "英语",
-            "value": "en"
-        },
-        {
-            "name": "日语",
-            "value": "ja"
-        }
-    ]
-}
-{
     "tempPath": "截图临时文件存储位置",
-    "maxSize": 5000, // 截图缩放大小，更高的尺寸可以提高准确率
+    "maxSize": 2000, // 截图缩放大小，更高的尺寸可以提高准确率
     "font": {
         "fontPath": "填写你的字体文件",
         "fontColor": "#ffffff", // 渲染文本颜色
@@ -117,7 +48,7 @@ python main.py
         "fontStrokeColor": "#000000" // 渲染文本描边颜色
     },
     "bgColor": null, // 渲染文本背景颜色，为空则为原背景模糊
-    "bgRectColor": "#ff0000", // OCR识别边框的颜色，没有则不上色
+    "bgRectColor": null, // OCR识别边框的颜色，没有则不上色
     "setWindowWaitingTime": 1, // 设置顶置窗口等待的时间
     "updateInterval": 1, // 自动刷新间隔
     "api": {
@@ -161,7 +92,7 @@ python main.py
             "name": "中文",
             "value": "zh-Hans-CN"
             // OCR引擎的语言代码
-            // 可以运行RuneTranslator/runetranslator/script/check_languages.ps1查看支持的语言
+            // 运行 RuneTranslator/runetranslator/script/check_languages.ps1 查看支持的语言
             // 也可以在Windows设置里添加系统语言
         }
     ]
