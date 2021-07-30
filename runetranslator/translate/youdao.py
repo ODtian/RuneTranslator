@@ -1,8 +1,12 @@
-import httpx
+import hashlib
+import logging
+import random
 import re
 import time
-import random
-import hashlib
+
+import httpx
+
+from ..utils import async_ts
 
 
 class Youdao:
@@ -21,12 +25,10 @@ class Youdao:
 
     def __init__(self):
         self.get_new_sign_url = None
-        self.query_count = 0
 
     async def get_sign_key(self, client):
-        if not self.get_new_sign_url:
-            host_html = (await client.get(self.host_url)).text
-            self.get_new_sign_url = self.get_sign_re.search(host_html).group(0)
+        host_html = (await client.get(self.host_url)).text
+        self.get_new_sign_url = self.get_sign_re.search(host_html).group(0)
 
         sign_html = (await client.get(self.get_new_sign_url)).text
         sign = self.sign_re.findall(sign_html)
@@ -55,11 +57,11 @@ class Youdao:
             "action": "FY_BY_DEFAULT",
         }
 
+    @async_ts
     async def translate(self, from_lang, to_lang, *text):
         query_text = "\n".join(text)
 
         async with httpx.AsyncClient(headers=self.headers) as client:
-
             sign_key = await self.get_sign_key(client)
 
             data = self.get_form(
@@ -68,15 +70,11 @@ class Youdao:
                 to_lang,
                 sign_key,
             )
-            r = await client.post(self.api_url, data=data)
-            result = r.json()
-
-            if result["errorCode"] != 0:
-                self.get_new_sign_url = None
-                return await self.translate(from_lang, to_lang, *text)
-            else:
-                self.query_count += 1
-                return ["".join(s["tgt"] for s in r) for r in result["translateResult"]]
+            result = (await client.post(self.api_url, data=data)).json()
+            logging.debug(result)
+            return [
+                "".join(w["tgt"] for w in line) for line in result["translateResult"]
+            ]
 
 
 if __name__ == "__main__":

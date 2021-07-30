@@ -77,22 +77,41 @@ def get_window_title(handle):
     return win32gui.GetWindowText(handle)
 
 
+def get_window_visibility(handle):
+    return win32gui.IsWindowVisible(handle) and not win32gui.IsIconic(handle)
+
+
 @ts
 def snapshot(handle):
     return ImageGrab.grab(get_current_size(handle))
 
 
-async def run_shell(cmd):
-    proc = await asyncio.create_subprocess_shell(
-        cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-    )
+class Powershell:
+    def __init__(self):
+        self.popen = None
 
-    stdout, stderr = await proc.communicate()
+    async def create_process(self):
+        self.popen = await asyncio.create_subprocess_shell(
+            "powershell -NoLogo",
+            limit=1024 * 128,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+        )
 
-    if stderr:
-        raise RuntimeError(stderr.decode())
+    @async_ts
+    async def excute(self, cmd):
+        logging.debug(cmd)
 
-    return stdout.decode()
+        if not self.popen:
+            await self.create_process()
+
+        self.popen.stdin.write(f"{cmd}\n".encode())
+        await self.popen.stdin.drain()
+        await self.popen.stdout.readline()
+        result = await self.popen.stdout.readline()
+        # logging.debug(result)
+        return result.rstrip().decode()
 
 
 @ts

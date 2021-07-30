@@ -1,7 +1,10 @@
 import hashlib
+import logging
 import random
 
 import httpx
+
+from ..utils import async_ts
 
 
 class Baidu:
@@ -12,9 +15,11 @@ class Baidu:
         self.app_id = app_id
         self.secret_key = secret_key
 
+    @async_ts
     async def translate(self, from_lang, to_lang, *text):
-        salt = str(random.randint(32768, 65536))
         query_text = "\n".join(text)
+
+        salt = str(random.randint(32768, 65536))
         sign = hashlib.md5(
             (self.app_id + query_text + salt + self.secret_key).encode()
         ).hexdigest()
@@ -29,5 +34,6 @@ class Baidu:
         }
 
         async with httpx.AsyncClient() as client:
-            r = await client.get(self.api_url, params=params)
-            return [line["dst"] for line in r.json()["trans_result"]]
+            result = (await client.get(self.api_url, params=params)).json()
+            logging.debug(result)
+            return [line["dst"] for line in result.json()["trans_result"]]

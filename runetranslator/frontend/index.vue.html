@@ -247,9 +247,13 @@
                                 this.autoUpdateTimer = null;
                             }
                         },
-                        apiSetting() {
-                            this.$py.set_api(this.apiSetting);
-                            // this.initLanguageSetting();
+                        async apiSetting(val) {
+                            await this.$py.set_api(val);
+                            await this.$py.set_language(
+                                this.languageSetting.source,
+                                this.languageSetting.dest
+                            );
+                            this.update(false);
                         },
                         languageSetting: {
                             async handler(val) {
@@ -366,7 +370,9 @@
                         },
                         errorMessage() {
                             return this.error.error
-                                ? `${this.error.error.name}: ${this.error.error.message}`
+                                ? this.error.error.message
+                                    ? `${this.error.error.name}: ${this.error.error.message}`
+                                    : this.error.error.name
                                 : "";
                         },
                         errorStack() {

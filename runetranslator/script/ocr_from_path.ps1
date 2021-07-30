@@ -67,5 +67,5 @@ Process {
         ResultType = ([Windows.Media.Ocr.OcrResult])
     }
     $result = Await @params
-    $result.Lines | ConvertTo-Json -Compress -Depth 4
+    $result | ConvertTo-Json -Compress -Depth 5
 }

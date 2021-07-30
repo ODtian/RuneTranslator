@@ -4,7 +4,15 @@ import uuid
 from importlib import import_module
 
 from .ocr import OCR
-from .utils import async_ts, get_window, get_window_title, parse_config, snapshot, ts
+from .utils import (
+    async_ts,
+    get_window,
+    get_window_title,
+    get_window_visibility,
+    parse_config,
+    snapshot,
+    ts,
+)
 
 # import webview
 
@@ -99,12 +107,16 @@ class Api(AsyncApi):
     @ts
     def set_language(self, source_lang=None, dest_lang=None):
         lang_map = self.config["api"][self.api.class_name].get("langMap", {})
-        self.source_lang = lang_map.get(source_lang, source_lang) or self.source_lang
-        self.dest_lang = lang_map.get(dest_lang, dest_lang) or self.dest_lang
+        self.source_lang = (
+            lang_map.get(source_lang, source_lang) if source_lang else self.source_lang
+        )
+        self.dest_lang = (
+            lang_map.get(dest_lang, dest_lang) if dest_lang else self.dest_lang
+        )
 
     @async_ts
     async def _update(self, lazy):
-        if not self.ocr_window:
+        if not self.ocr_window or not get_window_visibility(self.ocr_window):
             return []
 
         im = snapshot(self.ocr_window)

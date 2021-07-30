@@ -1,10 +1,10 @@
+import argparse
+import logging
 import os
 
 import webview
 
 from runetranslator.api import Api
-import argparse
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -18,16 +18,18 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-C",
-        "--conf",
-        default="./config.json",
-        type=str,
-        help="Path to the config file.",
+        "-D",
+        "--debug",
+        default=False,
+        action="store_true",
+        help="debug mode.",
     )
-    
-    conf_path = parser.parse_known_args()[0].conf
+    args, _ = parser.parse_known_args()
 
-    api = Api(conf_path)
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    api = Api(args.conf)
     api.window = webview.create_window(
         "RuneTranslator",
         f"{os.path.dirname(__file__) or '.'}/runetranslator/frontend/index.vue.html",

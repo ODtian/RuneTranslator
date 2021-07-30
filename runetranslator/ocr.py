@@ -3,8 +3,15 @@ import os
 import re
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
-
-from .utils import async_ts, create_text_im, im_diff, resize, run_shell, saveb64, ts
+from .utils import (
+    Powershell,
+    async_ts,
+    create_text_im,
+    im_diff,
+    resize,
+    saveb64,
+    ts,
+)
 
 
 class Line:
@@ -37,13 +44,13 @@ class OCR:
         self.im = None
         self.resized_im = None
         self.lines = []
+        self.powershell = Powershell()
 
         # self.im = Image.frombytes("RGB", (1, 1), bytes(3), "raw")
 
     def get_cmd(self, temp_path):
         return " ".join(
             (
-                "powershell",
                 self.ocr_path,
                 "-Path",
                 temp_path,
@@ -61,23 +68,19 @@ class OCR:
 
     @async_ts
     async def recognize(
-        self, im, lazy=False, temp_path="./temp.bmp", max_size=1000, diff=100
+        self, im, lazy=False, temp_path="temp.jpg", max_size=1000, diff=100
     ):
         if lazy and self.im and im_diff(im, self.im) < diff:
             return False
 
         self.im = im
         self.resized_im = resize(im, (max_size, max_size))
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
         self.resized_im.save(temp_path)
 
-        ocr_result = await run_shell(self.get_cmd(temp_path))
-
-        if ocr_result:
-            lines = json.loads(ocr_result)
-            if isinstance(lines, dict):
-                self.lines = [Line.from_dict(lines)]
-            else:
-                self.lines = [Line.from_dict(line) for line in lines]
+        ocr_result = await self.powershell.excute(self.get_cmd(temp_path))
+        self.lines = [Line.from_dict(line) for line in json.loads(ocr_result)["Lines"]]
 
         return True
 

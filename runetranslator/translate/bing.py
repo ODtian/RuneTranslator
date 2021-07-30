@@ -1,7 +1,10 @@
+import logging
 import re
 
 import httpx
 from lxml import etree
+
+from ..utils import async_ts
 
 
 class Bing:
@@ -11,61 +14,54 @@ class Bing:
 
     def __init__(self):
         self.query_count = 1
-        self.cookies = None
-        self.iid = None
-        self.ig = None
-        self.tk = None
 
-        self.update_host_info()
-
-    def update_host_info(self):
-        r = httpx.get(self.host_url)
-        self.cookies = r.cookies
-
+    async def get_host_info(self, client):
+        r = await client.get(self.host_url)
         html = r.text
         et = etree.HTML(html)
 
-        self.iid = et.xpath('//*[@id="rich_tta"]/@data-iid')[0] + "."
-        self.ig = re.compile('IG:"(.*?)"').findall(html)[0]
+        iid = et.xpath('//*[@id="rich_tta"]/@data-iid')[0] + "."
+        ig = re.compile('IG:"(.*?)"').findall(html)[0]
 
         result = (
             re.compile("var params_RichTranslateHelper = (.*?);")
             .findall(html)[0][1:-1]
             .split(",")
         )
-        self.tk = {"key": result[0], "token": result[1].strip('"')}
+        tk = {"key": result[0], "token": result[1].strip('"')}
+        return iid, ig, tk
 
+    @async_ts
     async def translate(self, from_lang, to_lang, *text):
-        params = {
-            "isVertical": "1",
-            "IG": self.ig,
-            "IID": self.iid + str(self.query_count),
-            "": "",
-        }
-
-        data = {
-            "fromLang": from_lang,
-            "to": to_lang,
-            "text": "\n".join(text),
-            **self.tk,
-        }
+        query_text = "\n".join(text)
 
         async with httpx.AsyncClient() as client:
-            r = await client.post(
-                self.api_url,
-                params=params,
-                data=data,
-                cookies=self.cookies,
-            )
+            iid, ig, tk = await self.get_host_info(client)
+            params = {
+                "isVertical": "1",
+                "IG": ig,
+                "IID": iid + str(self.query_count),
+                "": "",
+            }
+
+            data = {
+                "fromLang": from_lang,
+                "to": to_lang,
+                "text": query_text,
+                **tk,
+            }
+
+            result = (
+                await client.post(
+                    self.api_url,
+                    params=params,
+                    data=data,
+                )
+            ).json()
 
             self.query_count += 1
-
-            data = r.json()
-            if isinstance(data, dict) and data.get("statusCode") == 400:
-                self.update_host_info()
-                return await self.translate(from_lang, to_lang, *text)
-            else:
-                return data[0]["translations"][0]["text"].split("\n")
+            logging.debug(result)
+            return result.json()[0]["translations"][0]["text"].split("\n")
 
 
 if __name__ == "__main__":
