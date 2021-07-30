@@ -24,7 +24,7 @@
     <body>
         <div id="app">
             <v-app>
-                <v-app-bar app clipped-left>
+                <v-app-bar app clipped-left dark color="primary">
                     <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
                     <v-toolbar-title>RuneTranslator</v-toolbar-title>
                 </v-app-bar>
@@ -115,11 +115,16 @@
                     </v-list>
                 </v-navigation-drawer>
 
-                <v-main style="background-color: rgba(0, 0, 0, 0)">
+                <v-main>
                     <v-container fluid>
-                        <v-card :style="cardStyle" @mousemove="onCardMove" @wheel="onCardWheel">
-                            <v-img contain :src="url" />
-                        </v-card>
+                        <template v-if="url">
+                            <v-card :style="cardStyle" @mousemove="onCardMove" @wheel="onCardWheel">
+                                <v-img contain :src="url" />
+                            </v-card>
+                        </template>
+                        <template v-else>
+                            <p class="text-center" style="font-size: 20vh">{{ animals }}</p>
+                        </template>
                     </v-container>
                 </v-main>
 
@@ -399,8 +404,20 @@
                                 transform: `translate(${this.card.x}px, ${this.card.y}px) scale(${this.card.ratio})`,
                             };
                         },
+                        animals() {
+                            return ["🐵", "🦄", "🐦", "🐧", "🐄"][Math.floor(Math.random() * 5)];
+                        },
                     },
-                    vuetify: new Vuetify(),
+                    vuetify: new Vuetify({
+                        theme: {
+                            themes: {
+                                light: {
+                                    primary: "#F9438A", // #E53935
+                                    secondary: "#FFAB67", // #FFCDD2
+                                },
+                            },
+                        },
+                    }),
                 });
             };
 
