@@ -93,11 +93,26 @@ class Powershell:
     async def create_process(self):
         self.popen = await asyncio.create_subprocess_shell(
             "powershell -NoLogo",
-            limit=1024 * 128,
+            limit=1024 * 1024,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
         )
+        # self.popen.stdin.write(b"\n")
+        # await self.popen.stdin.drain()
+        # await self.popen.stdout.readline()
+
+    @async_ts
+    async def readline(self):
+        result = bytearray()
+        while True:
+            byte = await self.popen.stdout.read(1)
+            result += byte
+            if byte == b"\n":
+                logging.debug(result[:100])
+                logging.debug(" ... ")
+                logging.debug(result[100:])
+                return result
 
     @async_ts
     async def excute(self, cmd):
@@ -108,9 +123,9 @@ class Powershell:
 
         self.popen.stdin.write(f"{cmd}\n".encode())
         await self.popen.stdin.drain()
-        await self.popen.stdout.readline()
-        result = await self.popen.stdout.readline()
-        logging.debug(result[:100] + b"\n ... \n" + result[100:])
+        await self.readline()
+
+        result = await self.readline()
         return result.rstrip().decode()
 
 

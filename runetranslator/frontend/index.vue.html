@@ -222,9 +222,11 @@
                             config,
                             drawer: true,
                             autoUpdate: false,
-                            autoUpdateResolve: null,
+                            autoUpdateTimer: null,
+                            // autoUpdateResolve: null,
+                            updating: false,
                             apiSetting: null,
-                            mouse: { down: false },
+                            url: null,
                             card: { x: 0, y: 0, ratio: 1 },
                             error: {
                                 snackbar: false,
@@ -241,31 +243,33 @@
                                 inWindow: true,
                                 setWindowCountDown: null,
                             },
-                            url: null,
                         };
                     },
                     watch: {
                         autoUpdate(val) {
-                            if (this.autoUpdateResolve) {
-                                this.autoUpdateResolve();
+                            // if (this.autoUpdateResolve) {
+                            //     this.autoUpdateResolve();
+                            // }
+                            if (this.autoUpdateTimer) {
+                                clearInterval(this.autoUpdateTimer);
                             }
 
                             if (val === true) {
-                                new Promise((resolve) => {
-                                    this.autoUpdateResolve = resolve;
-                                    (async () => {
-                                        while (this.autoUpdate) {
-                                            await this.update();
-                                            await sleep(this.config.updateInterval * 1000);
-                                        }
-                                    })();
-                                });
+                                // new Promise((resolve) => {
+                                //     this.autoUpdateResolve = resolve;
+                                //     (async () => {
+                                //         while (this.autoUpdate) {
+                                //             await this.update();
+                                //             await sleep(this.config.updateInterval * 1000);
+                                //         }
+                                //     })();
+                                // });
 
-                                // this.autoUpdateTimer = setInterval(() => {
-                                //     this.update();
-                                // }, this.config.updateInterval * 1000);
+                                this.autoUpdateTimer = setInterval(() => {
+                                    this.update();
+                                }, this.config.updateInterval * 1000);
                             } else {
-                                this.autoUpdateResolve = null;
+                                this.autoUpdateTimer = null;
                             }
                         },
                         async apiSetting(val) {
@@ -314,20 +318,27 @@
                             this.windowSetting.setWindowCountDown = null;
                         },
                         async update(...props) {
-                            let success = true;
-                            let b64;
-                            try {
-                                b64 = await asyncCall(this.$py.update(...props));
-                            } catch (error) {
-                                success = false;
-                                this.alertError(error);
-                            } finally {
-                                if (success && b64) {
-                                    const blob = await b64toBlob(`data:image/jpeg;base64,${b64}`);
-                                    const url = URL.createObjectURL(blob);
-                                    const img = new Image();
-                                    img.src = url;
-                                    img.onload = () => (this.url = url);
+                            if (!this.updating) {
+                                let success = true;
+                                let b64;
+
+                                try {
+                                    this.updating = true;
+                                    b64 = await asyncCall(this.$py.update(...props));
+                                } catch (error) {
+                                    success = false;
+                                    this.alertError(error);
+                                } finally {
+                                    if (success && b64) {
+                                        const blob = await b64toBlob(`data:image/jpeg;base64,${b64}`);
+                                        const url = URL.createObjectURL(blob);
+                                        const img = new Image();
+                                        img.src = url;
+                                        img.onload = () => {
+                                            this.url = url;
+                                            this.updating = false;
+                                        };
+                                    }
                                 }
                             }
                         },
