@@ -61,7 +61,7 @@ class Bing:
 
             self.query_count += 1
             logging.debug(result)
-            return result.json()[0]["translations"][0]["text"].split("\n")
+            return result[0]["translations"][0]["text"].split("\n")
 
 
 if __name__ == "__main__":

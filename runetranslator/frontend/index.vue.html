@@ -194,6 +194,12 @@
                 });
             }
 
+            function sleep(ms) {
+                return new Promise((resolve) => {
+                    setTimeout(resolve, ms);
+                });
+            }
+
             async function b64toBlob(b64) {
                 return await (await fetch(b64)).blob();
             }
@@ -211,7 +217,7 @@
                             config,
                             drawer: true,
                             autoUpdate: false,
-                            autoUpdateTimer: null,
+                            autoUpdateResolve: null,
                             apiSetting: null,
                             mouse: { down: false },
                             card: { x: 0, y: 0, ratio: 1 },
@@ -235,16 +241,26 @@
                     },
                     watch: {
                         autoUpdate(val) {
-                            if (this.autoUpdateTimer) {
-                                clearInterval(this.autoUpdateTimer);
+                            if (this.autoUpdateResolve) {
+                                this.autoUpdateResolve();
                             }
 
                             if (val === true) {
-                                this.autoUpdateTimer = setInterval(() => {
-                                    this.update();
-                                }, this.config.updateInterval * 1000);
+                                new Promise((resolve) => {
+                                    this.autoUpdateResolve = resolve;
+                                    (async () => {
+                                        while (this.autoUpdate) {
+                                            await this.update();
+                                            await sleep(this.config.updateInterval * 1000);
+                                        }
+                                    })();
+                                });
+
+                                // this.autoUpdateTimer = setInterval(() => {
+                                //     this.update();
+                                // }, this.config.updateInterval * 1000);
                             } else {
-                                this.autoUpdateTimer = null;
+                                this.autoUpdateResolve = null;
                             }
                         },
                         async apiSetting(val) {

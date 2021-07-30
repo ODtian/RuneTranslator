@@ -98,6 +98,9 @@ class Powershell:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
         )
+        self.popen.stdin.write(b"\n")
+        await self.popen.stdin.drain()
+        await self.popen.stdout.readline()
 
     @async_ts
     async def excute(self, cmd):
@@ -110,7 +113,7 @@ class Powershell:
         await self.popen.stdin.drain()
         await self.popen.stdout.readline()
         result = await self.popen.stdout.readline()
-        # logging.debug(result)
+        logging.debug(result)
         return result.rstrip().decode()
 
 

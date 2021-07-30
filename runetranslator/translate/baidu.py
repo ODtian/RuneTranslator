@@ -36,4 +36,4 @@ class Baidu:
         async with httpx.AsyncClient() as client:
             result = (await client.get(self.api_url, params=params)).json()
             logging.debug(result)
-            return [line["dst"] for line in result.json()["trans_result"]]
+            return [line["dst"] for line in result["trans_result"]]
