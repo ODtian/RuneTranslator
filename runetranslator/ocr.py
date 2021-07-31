@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
 from .utils import (
     Powershell,
     async_ts,
@@ -75,9 +75,11 @@ class OCR:
 
         self.im = im
         self.resized_im = resize(im, (max_size, max_size))
+
         if os.path.exists(temp_path):
             os.remove(temp_path)
-        self.resized_im.save(temp_path)
+
+        ImageEnhance.Contrast(self.resized_im).enhance(factor=3).save(temp_path)
 
         ocr_result = await self.powershell.excute(self.get_cmd(temp_path))
         self.lines = [Line.from_dict(line) for line in json.loads(ocr_result)["Lines"]]
