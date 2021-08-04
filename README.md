@@ -7,7 +7,8 @@
 ![](https://img.shields.io/github/issues/ODtian/RuneTranslator.svg)
 
 ## 特性
-目前打包后还有些问题，请先直接使用python运行
+
+目前打包后还有些问题，请先直接使用 python 运行
 
 -   基于 .NET Windows.Media.OCR 的 OCR 引擎，系统自带（调用 powershell，没想到吧）；
 -   基于 EdgeChromium Webview 构建的 GUI，系统自带，减小体积；

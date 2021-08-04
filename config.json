@@ -34,6 +34,13 @@
                 "jp": "ja"
             }
         },
+        "microsoft": {
+            "name": "Azure翻译",
+            "langMap": {
+                "zh": "zh-Hans",
+                "jp": "ja"
+            }
+        },
         "direct": {
             "name": "不翻译"
         }
