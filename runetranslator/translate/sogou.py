@@ -28,6 +28,7 @@ class Sogou:
             "client": "pc",  # wap
             "fr": "browser_pc",  # browser_wap
             "needQc": "1",
+            "exchange": "false",
         }
 
     @async_ts

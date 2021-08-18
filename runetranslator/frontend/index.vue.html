@@ -32,7 +32,6 @@
                 <v-navigation-drawer app clipped mobile-breakpoint="0" v-model="drawer">
                     <v-list rounded>
                         <v-subheader>基本设置</v-subheader>
-
                         <v-list-item>
                             <v-btn block color="primary" @click="update(false)"> 刷新 </v-btn>
                         </v-list-item>
@@ -45,35 +44,16 @@
                                 v-model="autoUpdate"
                             />
                         </v-list-item>
-                        <v-subheader>语言设置</v-subheader>
                         <v-list-item>
-                            <v-select
+                            <v-switch
                                 persistent-hint
-                                small-chips
-                                label="API"
-                                hint="选择一个翻译引擎"
-                                item-text="name"
-                                item-value="value"
-                                v-model="apiSetting"
-                                :items="apiOptions"
+                                label="不使用内置阅览器"
+                                hint="需要设置 outSnapPath"
+                                v-model="notUseInsiderViewer"
                             />
                         </v-list-item>
-                        <template v-for="(item, i) in selectComponents">
-                            <v-list-item>
-                                <v-select
-                                    persistent-hint
-                                    small-chips
-                                    item-text="name"
-                                    item-value="value"
-                                    v-model="languageSetting[item.modelKey]"
-                                    :label="item.label"
-                                    :hint="item.hint"
-                                    :items="item.items"
-                                />
-                            </v-list-item>
-                        </template>
-                        <v-subheader>窗口设置</v-subheader>
 
+                        <v-subheader>窗口设置</v-subheader>
                         <v-list-item>
                             <v-text-field
                                 readonly
@@ -105,6 +85,35 @@
                                 hint="在本窗口显示（暂不支持窗口外）"
                             />
                         </v-list-item>
+
+                        <v-subheader>语言设置</v-subheader>
+                        <v-list-item>
+                            <v-select
+                                persistent-hint
+                                small-chips
+                                label="API"
+                                hint="选择一个翻译引擎"
+                                item-text="name"
+                                item-value="value"
+                                v-model="apiSetting"
+                                :items="apiOptions"
+                            />
+                        </v-list-item>
+                        <template v-for="(item, i) in selectComponents">
+                            <v-list-item>
+                                <v-select
+                                    persistent-hint
+                                    small-chips
+                                    item-text="name"
+                                    item-value="value"
+                                    v-model="languageSetting[item.modelKey]"
+                                    :label="item.label"
+                                    :hint="item.hint"
+                                    :items="item.items"
+                                />
+                            </v-list-item>
+                        </template>
+
                         <v-subheader>其他设置</v-subheader>
                         <v-list-item>
                             <v-btn block color="primary" @click="updateConfig"> 更新设置</v-btn>
@@ -223,6 +232,7 @@
                             drawer: true,
                             autoUpdate: false,
                             autoUpdateTimer: null,
+                            notUseInsiderViewer: true,
                             // autoUpdateResolve: null,
                             updating: false,
                             apiSetting: null,
@@ -247,27 +257,15 @@
                     },
                     watch: {
                         autoUpdate(val) {
-                            // if (this.autoUpdateResolve) {
-                            //     this.autoUpdateResolve();
-                            // }
                             if (this.autoUpdateTimer) {
                                 clearInterval(this.autoUpdateTimer);
                             }
 
                             if (val === true) {
-                                // new Promise((resolve) => {
-                                //     this.autoUpdateResolve = resolve;
-                                //     (async () => {
-                                //         while (this.autoUpdate) {
-                                //             await this.update();
-                                //             await sleep(this.config.updateInterval * 1000);
-                                //         }
-                                //     })();
-                                // });
-
-                                this.autoUpdateTimer = setInterval(() => {
-                                    this.update();
-                                }, this.config.updateInterval * 1000);
+                                this.autoUpdateTimer = setInterval(
+                                    this.update,
+                                    this.config.updateInterval * 1000
+                                );
                             } else {
                                 this.autoUpdateTimer = null;
                             }
@@ -319,17 +317,12 @@
                         },
                         async update(...props) {
                             if (!this.updating) {
-                                let success = true;
-                                let b64;
-
+                                this.updating = true;
                                 try {
-                                    this.updating = true;
-                                    b64 = await asyncCall(this.$py.update(...props));
-                                } catch (error) {
-                                    success = false;
-                                    this.alertError(error);
-                                } finally {
-                                    if (success && b64) {
+                                    const b64 = await asyncCall(this.$py.update(...props));
+                                    if (this.notUseInsiderViewer) {
+                                        this.url = null;
+                                    } else if (b64) {
                                         const blob = await b64toBlob(`data:image/jpeg;base64,${b64}`);
                                         const url = URL.createObjectURL(blob);
                                         const img = new Image();
@@ -338,6 +331,9 @@
                                             this.url = url;
                                         };
                                     }
+                                } catch (error) {
+                                    this.alertError(error);
+                                } finally {
                                     this.updating = false;
                                 }
                             }

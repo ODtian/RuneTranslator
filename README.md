@@ -51,7 +51,10 @@ usage: main.py [-h] [-C CONF] [-D]
 
 ```javascript
 {
-    "tempPath": "截图临时文件存储位置",
+    "tempSnapPath": "截图临时文件存储位置",
+    "tempOcrPath": "OCR结果临时存放的位置",
+    "outSnapPath": "如果不想使用自带的垃圾图片阅览器，请填写这个参数，然后使用系统图片阅览器",
+    "paragraphBreak": 10, // 识别段落的阈值，一行文本长度如果小于这个值，那么多行文本全部按照单行处理
     "maxSize": 2000, // 截图缩放大小，更高的尺寸可以提高准确率
     "font": {
         "fontPath": "填写你的字体文件",
@@ -60,8 +63,9 @@ usage: main.py [-h] [-C CONF] [-D]
         "fontStrokeWidth": 2, // 渲染文本描边大小
         "fontStrokeColor": "#000000" // 渲染文本描边颜色
     },
-    "bgColor": null, // 渲染文本背景颜色，为空则为原背景模糊
-    "bgRectColor": null, // OCR识别边框的颜色，没有则不上色
+    "lineBgColor": null,// 渲染文本背景颜色，为空则为原背景模糊
+    "lineRectColor": null,// OCR识别边框的颜色，没有则不上色
+    "paragraphRectColor": null, // OCR识别段落的颜色，没有不上色
     "setWindowWaitingTime": 1, // 设置顶置窗口等待的时间
     "updateInterval": 1, // 自动刷新间隔
     "api": {

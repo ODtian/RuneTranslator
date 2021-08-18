@@ -1,5 +1,8 @@
 {
-    "tempPath": "./temp.jpg",
+    "tempSnapPath": "./temp.jpg",
+    "tempOcrPath": "./temp.json",
+    "outSnapPath": "./snap.jpg",
+    "paragraphBreak": 10,
     "maxSize": 2000,
     "font": {
         "fontPath": "填写你的字体文件",
@@ -8,8 +11,9 @@
         "fontStrokeWidth": 2,
         "fontStrokeColor": "#000000"
     },
-    "bgColor": null,
-    "bgRectColor": "#ff0000",
+    "lineBgColor": null,
+    "lineRectColor": null,
+    "paragraphRectColor": null,
     "setWindowWaitingTime": 1,
     "updateInterval": 1,
     "api": {

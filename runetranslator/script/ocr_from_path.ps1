@@ -3,7 +3,8 @@ using namespace Windows.Graphics.Imaging
 
 Param(
     [string]$Path = $(throw "Parameter missing: -Path Path"),
-    [string]$Lang = $(throw "Parameter missing: -Lang Lang")
+    [string]$Lang = $(throw "Parameter missing: -Lang Lang"),
+    [string]$OutPath = $(throw "Parameter missing: -OutPath OutPath")
 )
 
 Begin {
@@ -67,5 +68,7 @@ Process {
         ResultType = ([Windows.Media.Ocr.OcrResult])
     }
     $result = Await @params
-    $result | ConvertTo-Json -Compress -Depth 5
+    
+    $result | ConvertTo-Json -Compress -Depth 5 | Out-File -FilePath $OutPath
+    ""
 }

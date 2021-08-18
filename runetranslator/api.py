@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import uuid
 from importlib import import_module
 
@@ -124,18 +125,41 @@ class Api(AsyncApi):
         should_update = await self.ocr.recognize(
             im,
             lazy=lazy,
-            **parse_config(self.config, keys=("tempPath", "maxSize", "diff")),
+            **parse_config(
+                self.config, keys=("tempSnapPath", "tempOcrPath", "maxSize", "diff")
+            ),
         )
 
-        if should_update and self.ocr.line_text:
-            ts_text = await self.api.translate(
-                self.source_lang, self.dest_lang, *self.ocr.line_text
+        if should_update and self.ocr.paragraphs:
+            paragraph_texts = []
+
+            for paragraph in self.ocr.paragraphs:
+                if paragraph.text_width() > self.config["paragraphBreak"]:
+                    paragraph_texts.append((False, [paragraph.texts["nowrap"]]))
+                else:
+                    paragraph_texts.append(
+                        (True, [line.text for line in paragraph.lines])
+                    )
+
+            logging.debug(paragraph_texts)
+            input_texts = [text for _, texts in paragraph_texts for text in texts]
+            ts_texts = await self.api.translate(
+                self.source_lang, self.dest_lang, *input_texts
             )
 
-            for line, text in zip(self.ocr.lines, ts_text):
-                line.ts = text
+            for (not_break, texts), paragraph in zip(
+                paragraph_texts, self.ocr.paragraphs
+            ):
+                length = len(texts)
 
-        return self.ocr.lines
+                if not_break:
+                    paragraph.texts["translate"] = ts_texts[:length]
+                else:
+                    paragraph.texts["translate"] = ts_texts[:length][0]
+
+                ts_texts = ts_texts[length:]
+
+        # return self.ocr.lines
 
     @async_ts
     async def _update_with_compose(self, lazy):
@@ -154,7 +178,15 @@ class Api(AsyncApi):
                     "fontStrokeWidth",
                 ),
             ),
-            **parse_config(self.config, keys=("bgColor", "bgRectColor")),
+            **parse_config(
+                self.config,
+                keys=(
+                    "lineBgColor",
+                    "lineRectColor",
+                    "paragraphRectColor",
+                    "outSnapPath",
+                ),
+            ),
         )
 
     def update(self, lazy=True, compose=True):
