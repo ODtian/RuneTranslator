@@ -11,6 +11,7 @@ from sklearn.cluster import DBSCAN
 # OPTICS
 from sklearn.preprocessing import StandardScaler
 
+from .error import ShouldNotUpdateError
 from .utils import Powershell, async_ts, create_text_im, im_diff, resize, saveb64, ts
 
 # import re
@@ -119,12 +120,13 @@ class Paragraph:
                 yield line, texts[start:end]
                 start = end
 
-            yield self.lines[-1], texts[start:]
+            if start < len(texts):
+                yield self.lines[-1], texts[start:]
 
 
 class OCR:
     ocr_path = f"{os.path.dirname(__file__)}/script/ocr_from_path.ps1"
-    need_trim_lang = ("ja", "zh-Hans")
+    # need_trim_lang = ("ja", "zh-Hans")
 
     def __init__(
         self,
@@ -133,8 +135,6 @@ class OCR:
         self.ocr_lang = ocr_lang
         self.im = None
         self.resized_im = None
-        # self.lines = []
-        # self.paragraphs = {}
         self.paragraphs = []
         self.powershell = Powershell()
 
@@ -172,7 +172,7 @@ class OCR:
         diff=100,
     ):
         if lazy and self.im and im_diff(im, self.im) < diff:
-            return False
+            raise ShouldNotUpdateError()
 
         self.im = im
         self.resized_im = resize(im, (max_size, max_size))
@@ -192,10 +192,7 @@ class OCR:
                 for word in line["Words"]
             ]
             # logging.debug(words)
-            # self.lines = [Line.from_dict(line) for line in lines]
             self.paragraphs = build_paragraph(words)
-
-        return True
 
     @ts
     def compose(

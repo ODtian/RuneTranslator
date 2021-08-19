@@ -1,8 +1,11 @@
-import httpx
 import base64
-import time
 import json
 import logging
+import time
+
+import httpx
+
+from ..error import TranslateError
 
 
 class Microsoft:
@@ -40,7 +43,10 @@ class Microsoft:
             ).json()
             logging.debug(result)
 
-            return ["".join(t["text"] for t in ts["translations"]) for ts in result]
+            try:
+                return ["".join(t["text"] for t in ts["translations"]) for ts in result]
+            except Exception as e:
+                raise TranslateError() from e
 
 
 if __name__ == "__main__":

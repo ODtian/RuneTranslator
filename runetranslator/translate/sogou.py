@@ -4,6 +4,7 @@ import uuid
 
 import httpx
 
+from ..error import TranslateError
 from ..utils import async_ts
 
 
@@ -48,7 +49,11 @@ class Sogou:
                 )
             ).json()
             logging.debug(result)
-            return result["data"]["translate"]["dit"].split("\n")
+
+            try:
+                return result["data"]["translate"]["dit"].split("\n")
+            except Exception as e:
+                raise TranslateError() from e
 
 
 if __name__ == "__main__":

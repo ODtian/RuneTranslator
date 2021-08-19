@@ -6,6 +6,7 @@ import time
 
 import httpx
 
+from ..error import TranslateError
 from ..utils import async_ts
 
 
@@ -72,9 +73,15 @@ class Youdao:
             )
             result = (await client.post(self.api_url, data=data)).json()
             logging.debug(result)
-            return [
-                "".join(w["tgt"] for w in line) for line in result["translateResult"]
-            ]
+
+            try:
+                return [
+                    "".join(w["tgt"] for w in line)
+                    for line in result["translateResult"]
+                ]
+
+            except Exception as e:
+                raise TranslateError() from e
 
 
 if __name__ == "__main__":

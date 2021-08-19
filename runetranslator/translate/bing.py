@@ -4,6 +4,7 @@ import re
 import httpx
 from lxml import etree
 
+from ..error import TranslateError
 from ..utils import async_ts
 
 
@@ -61,7 +62,11 @@ class Bing:
 
             self.query_count += 1
             logging.debug(result)
-            return result[0]["translations"][0]["text"].split("\n")
+
+            try:
+                return result[0]["translations"][0]["text"].split("\n")
+            except Exception as e:
+                raise TranslateError() from e
 
 
 if __name__ == "__main__":

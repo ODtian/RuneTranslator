@@ -4,6 +4,7 @@ import logging
 import uuid
 from importlib import import_module
 
+from .error import RecognizeError, ShouldNotUpdateError
 from .ocr import OCR
 from .utils import (
     async_ts,
@@ -116,48 +117,53 @@ class Api(AsyncApi):
         )
 
     @async_ts
+    async def _translate(self):
+        paragraph_texts = []
+
+        for paragraph in self.ocr.paragraphs:
+            if paragraph.text_width() > self.config["paragraphBreak"]:
+                paragraph_texts.append((False, [paragraph.texts["nowrap"]]))
+            else:
+                paragraph_texts.append((True, [line.text for line in paragraph.lines]))
+
+        logging.debug(paragraph_texts)
+        input_texts = [text for _, texts in paragraph_texts for text in texts]
+        ts_texts = await self.api.translate(
+            self.source_lang, self.dest_lang, *input_texts
+        )
+
+        for (not_break, texts), paragraph in zip(paragraph_texts, self.ocr.paragraphs):
+            length = len(texts)
+
+            if not_break:
+                paragraph.texts["translate"] = ts_texts[:length]
+            else:
+                paragraph.texts["translate"] = ts_texts[:length][0]
+
+            ts_texts = ts_texts[length:]
+
+    @async_ts
     async def _update(self, lazy):
         if not self.ocr_window or not get_window_visibility(self.ocr_window):
-            return []
+            return
 
         im = snapshot(self.ocr_window)
 
-        should_update = await self.ocr.recognize(
-            im,
-            lazy=lazy,
-            **parse_config(
-                self.config, keys=("tempSnapPath", "tempOcrPath", "maxSize", "diff")
-            ),
-        )
-
-        if should_update and self.ocr.paragraphs:
-            paragraph_texts = []
-
-            for paragraph in self.ocr.paragraphs:
-                if paragraph.text_width() > self.config["paragraphBreak"]:
-                    paragraph_texts.append((False, [paragraph.texts["nowrap"]]))
-                else:
-                    paragraph_texts.append(
-                        (True, [line.text for line in paragraph.lines])
-                    )
-
-            logging.debug(paragraph_texts)
-            input_texts = [text for _, texts in paragraph_texts for text in texts]
-            ts_texts = await self.api.translate(
-                self.source_lang, self.dest_lang, *input_texts
+        try:
+            await self.ocr.recognize(
+                im,
+                lazy=lazy,
+                **parse_config(
+                    self.config, keys=("tempSnapPath", "tempOcrPath", "maxSize", "diff")
+                ),
             )
-
-            for (not_break, texts), paragraph in zip(
-                paragraph_texts, self.ocr.paragraphs
-            ):
-                length = len(texts)
-
-                if not_break:
-                    paragraph.texts["translate"] = ts_texts[:length]
-                else:
-                    paragraph.texts["translate"] = ts_texts[:length][0]
-
-                ts_texts = ts_texts[length:]
+        except ShouldNotUpdateError:
+            pass
+        except Exception as e:
+            raise RecognizeError from e
+        else:
+            if self.ocr.paragraphs:
+                await self._translate()
 
         # return self.ocr.lines
 

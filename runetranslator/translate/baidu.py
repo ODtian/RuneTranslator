@@ -4,6 +4,7 @@ import random
 
 import httpx
 
+from ..error import TranslateError
 from ..utils import async_ts
 
 
@@ -36,4 +37,8 @@ class Baidu:
         async with httpx.AsyncClient() as client:
             result = (await client.get(self.api_url, params=params)).json()
             logging.debug(result)
-            return [line["dst"] for line in result["trans_result"]]
+
+            try:
+                return [line["dst"] for line in result["trans_result"]]
+            except Exception as e:
+                raise TranslateError() from e
