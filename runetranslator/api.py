@@ -121,6 +121,7 @@ class Api(AsyncApi):
         paragraph_texts = []
 
         for paragraph in self.ocr.paragraphs:
+            logging.debug(paragraph.text)
             if paragraph.text_width() > self.config["paragraphBreak"]:
                 paragraph_texts.append((False, [paragraph.texts["nowrap"]]))
             else:

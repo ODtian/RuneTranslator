@@ -18,7 +18,7 @@ from .utils import Powershell, async_ts, create_text_im, im_diff, resize, saveb6
 
 
 def build_paragraph(words):
-    scaler = StandardScaler().fit_transform([(word.x, word.y) for word in words])
+    scaler = StandardScaler().fit_transform([(word.mx, word.my) for word in words])
     db = DBSCAN(eps=0.5, min_samples=3).fit(scaler)
     # db = OPTICS(eps=0.8, min_samples=5).fit(scaler)
     labels = db.labels_
@@ -37,11 +37,11 @@ def get_bounding_box(items):
     top = min(item.top for item in items)
     right = max(item.right for item in items)
     bottom = max(item.bottom for item in items)
-    return (left, top, right, bottom), (right - left, bottom - top)
+    return (left, top, right, bottom)
 
 
-class Word:
-    def __init__(self, box, text):
+class Rect:
+    def __init__(self, box):
         self.box = box
         self.left, self.top, self.right, self.bottom = self.box
         self.w = self.right - self.left
@@ -49,9 +49,15 @@ class Word:
         self.size = (self.w, self.h)
         self.x = self.left
         self.y = self.top
-        self.text = text
         self.mx = (self.left + self.right) / 2
         self.my = (self.top + self.bottom) / 2
+
+
+class Word(Rect):
+    def __init__(self, box, text):
+        super().__init__(box)
+
+        self.text = text
 
     @classmethod
     def from_dict(cls, word):
@@ -60,30 +66,30 @@ class Word:
         return cls(box, word["Text"])
 
 
-class Line:
+class Line(Rect):
     def __init__(self, words):
+        super().__init__(get_bounding_box(words))
+
         self.words = words
         self.text = "".join(word.text for word in self.words)
-        self.box, self.size = get_bounding_box(self.words)
-        self.left, self.top, self.right, self.bottom = self.box
-        self.w, self.h = self.size
 
 
-class Paragraph:
+class Paragraph(Rect):
     def __init__(self, lines):
+        super().__init__(get_bounding_box(lines))
+
         self.lines = lines
         self.text = "\n".join(line.text for line in self.lines)
         self.texts = {"nowrap": "".join(line.text for line in self.lines)}
-        self.box, self.size = get_bounding_box(self.lines)
-        self.left, self.top, self.right, self.bottom = self.box
-        self.w, self.h = self.size
 
     def text_width(self):
-        return max(len(line.text) for line in self.lines)
+        return sum(len(line.text) for line in self.lines) / len(self.lines)
 
     @classmethod
     def from_words(cls, words):
         lines = []
+
+        words = sorted(words, key=lambda word: word.my)
         words_iter = iter(words)
         first = next(words_iter, None)
 
@@ -92,16 +98,16 @@ class Paragraph:
 
         temp = [first]
         for rest in words_iter:
-            if first.top < rest.my < first.bottom:
+            if first.top <= rest.my <= first.bottom:
                 temp.append(rest)
             else:
-                temp.sort(key=lambda word: word.x)
+                temp.sort(key=lambda word: word.mx)
                 lines.append(Line(temp))
                 first = rest
                 temp = [rest]
 
         if temp:
-            temp.sort(key=lambda word: word.x)
+            temp.sort(key=lambda word: word.mx)
             lines.append(Line(temp))
 
         return cls(lines)
@@ -122,6 +128,48 @@ class Paragraph:
 
             if start < len(texts):
                 yield self.lines[-1], texts[start:]
+
+
+# class OcrEngine:
+#     async def recognize(self, im, lang):
+#         raise NotImplementedError()
+
+
+# class WinRTOcrEngine(OcrEngine):
+#     pass
+
+
+# class PowershellOcrEngine(OcrEngine):
+#     ocr_path = f"{os.path.dirname(__file__)}/script/ocr_from_path.ps1"
+
+#     def __init__(self):
+#         self.powershell = Powershell()
+
+#     def get_cmd(self, temp_snap_path, ocr_lang, temp_ocr_path):
+#         return " ".join(
+#             (
+#                 self.ocr_path,
+#                 "-Path",
+#                 temp_snap_path,
+#                 "-Lang",
+#                 ocr_lang,
+#                 "-OutPath",
+#                 temp_ocr_path,
+#             )
+#         )
+
+#     async def recognize(self, im, lang, temp_snap_path, temp_ocr_path):
+#         await self.powershell.execute(self.get_cmd(temp_snap_path, lang, temp_ocr_path))
+
+#         async with aiofiles.open(temp_ocr_path, "rb") as f:
+#             result = json.loads(await f.read())
+#             logging.debug(result)
+#             words = [
+#                 Word.from_dict(word)
+#                 for line in result["Lines"]
+#                 for word in line["Words"]
+#             ]
+#             return build_paragraph(words)
 
 
 class OCR:
