@@ -6,3 +6,4 @@ pythonnet
 importlib_resources
 proxy_tools
 aiofiles
+pywin32
