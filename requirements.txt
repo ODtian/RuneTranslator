@@ -1,4 +1,4 @@
-git+https://github.com/r0x0r/pywebview
+sklearn
 httpx
 lxml
 pillow
