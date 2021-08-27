@@ -2,8 +2,8 @@ import asyncio
 import json
 import logging
 import uuid
-from importlib import import_module
 
+from . import translate
 from .error import RecognizeError, ShouldNotUpdateError
 from .ocr import OCR
 from .utils import (
@@ -97,8 +97,7 @@ class Api(AsyncApi):
 
     @ts
     def set_api(self, api_class):
-        module = import_module(f"runetranslator.translate.{api_class.lower()}")
-        cls = getattr(module, api_class.capitalize())
+        cls = getattr(translate, api_class.lower())
         kwargs = self.config["api"][api_class].get("kwargs", {})
         self.api = cls(**kwargs)
 
