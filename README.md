@@ -7,6 +7,9 @@
 ![](https://img.shields.io/github/issues/ODtian/RuneTranslator.svg)
 
 ## 特性
+webview2问题太多了，正好pyqt6也出了好几个月了，打算用pyqt6重构一下
+
+powershell调用ocr接口在有的用户上无法使用，计划通过微软官方的winrt python库扩展兼容性，出乎意料的是powershell调用更快一些
 
 目前打包后还有些问题，请先直接使用 python 运行
 
